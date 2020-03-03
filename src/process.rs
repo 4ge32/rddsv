@@ -6,7 +6,7 @@ pub fn guard_true(_p: SharedVars) -> bool {
 }
 
 #[allow(dead_code)]
-pub fn action_nop(q: &mut SharedVars, _p: &SharedVars) {
+pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
