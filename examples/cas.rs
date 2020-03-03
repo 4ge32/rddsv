@@ -1,5 +1,5 @@
-use rddsv::process::*;
 use rddsv::lts::*;
+use rddsv::process::*;
 
 /* User definition of guard and action */
 fn action_p_cas(p: &mut SharedVars, q: &SharedVars) {
@@ -90,8 +90,6 @@ fn m_cas_def() -> Vec<Process<SharedVars>> {
     process
 }
 
-use std::cell::RefCell;
-use std::rc::Rc;
 pub fn main() {
     /* visualize each process */
     let process = m_cas_def();
@@ -109,52 +107,28 @@ mod test {
     use file_diff::diff_files;
     use std::fs::*;
 
-    //#[test]
-    //fn vis_p_process() {
-    //    let p = m_cas_p_def();
-    //    vis_process("P_cas", &p);
+    #[test]
+    fn vis_m_cas() {
+        let process = m_cas_def();
+        let r: SharedVars = Default::default();
+        let s = State::new(r);
+        let lts = concurrent_composition(process, s);
+        lts.visualize("res/test_m_cas.dot");
 
-    //    let mut file1 = match File::open("./P_cas.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
-    //    let mut file2 = match File::open("./tests/m_cas_P.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
+        let mut file1 = match File::open("./res/test_m_cas.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
+        let mut file2 = match File::open("./ref/m_cas.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
 
-    //    assert!(diff_files(&mut file1, &mut file2), "Not much P dot diff");
+        assert!(diff_files(&mut file1, &mut file2), "They are different.");
 
-    //    std::fs::remove_file("P_cas.dot").unwrap_or_else(|why| {
-    //        println!("! {:?}", why.kind());
-    //    });
-    //}
-    //#[test]
-    //fn vis_q_process() {
-    //    let p = m_cas_q_def();
-    //    vis_process("Q_cas", &p);
+        std::fs::remove_file("res/test_m_cas.dot").unwrap_or_else(|why| {
+            println!("! {:?}", why.kind());
+        });
+    }
 
-    //    let mut file1 = match File::open("./Q_cas.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
-    //    let mut file2 = match File::open("./tests/m_cas_Q.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
-
-    //    assert!(diff_files(&mut file1, &mut file2), "Not much Q dot diff");
-
-    //    std::fs::remove_file("Q_cas.dot").unwrap_or_else(|why| {
-    //        println!("! {:?}", why.kind());
-    //    });
-    //}
-    //#[test]
-    //fn process_create() {
-    //    let process = m_cas_def();
-    //    let p = &process[0].name;
-    //    let q = &process[1].name;
-    //    assert_eq!("P", p);
-    //    assert_eq!("Q", q);
-    //}
 }
