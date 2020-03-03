@@ -1,4 +1,6 @@
 /target
 **/*.rs.bk
+*.dot
+*.pdf
 res
 ref
