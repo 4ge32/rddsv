@@ -1,4 +1,6 @@
 use std::fmt;
+use std::fs;
+use std::io::{BufWriter, Write};
 
 #[allow(dead_code)]
 pub fn guard_true(_p: SharedVars) -> bool {
@@ -6,8 +8,7 @@ pub fn guard_true(_p: SharedVars) -> bool {
 }
 
 #[allow(dead_code)]
-pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {
-}
+pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Location(usize);
@@ -96,7 +97,7 @@ impl<T: Clone + Eq> ExecUnit<T> {
 #[derive(Clone)]
 pub struct Process<T> {
     pub label: Label,
-    pub v: Vec<ExecUnit<T>>
+    pub v: Vec<ExecUnit<T>>,
 }
 
 impl<T: Clone> Process<T> {
@@ -105,5 +106,19 @@ impl<T: Clone> Process<T> {
             label: Label::new(label),
             v: v,
         }
+    }
+
+    pub fn visualize(&self, path: &str) {
+        let mut f = BufWriter::new(fs::File::create(path).unwrap());
+        writeln!(f, "digraph {{").unwrap();
+        for (i, e) in self.v.iter().enumerate() {
+            writeln!(f, "{} [label=\"{}{}\"];", i, self.label, e.src).unwrap();
+        }
+        for (i, e) in self.v.iter().enumerate() {
+            for pt in &e.transs {
+                writeln!(f, "{} -> {} [label=\"{}\"]", i, pt.dst, pt.label).unwrap();
+            }
+        }
+        writeln!(f, "}}").unwrap();
     }
 }

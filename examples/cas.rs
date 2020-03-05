@@ -93,8 +93,7 @@ fn m_cas_def() -> Vec<Process<SharedVars>> {
 pub fn main() {
     /* visualize each process */
     let process = m_cas_def();
-    //vis_process("P_cas", &process[0]);
-    //vis_process("Q_cas", &process[1]);
+    process[0].visualize("res/m_cas_P.dot");
 
     let r: SharedVars = Default::default();
     let s = State::new(r);
@@ -102,10 +101,32 @@ pub fn main() {
     lts.visualize("res/m_cas.dot");
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use file_diff::diff_files;
     use std::fs::*;
+
+    #[test]
+    fn vis_process() {
+        let process = m_cas_def();
+        process[0].visualize("res/test_m_cas_P.dot");
+
+        let mut file1 = match File::open("./res/test_m_cas_P.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
+        let mut file2 = match File::open("./ref/m_cas_P.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
+
+        assert!(diff_files(&mut file1, &mut file2), "They are different.");
+
+        std::fs::remove_file("res/test_m_cas_P.dot").unwrap_or_else(|why| {
+            println!("! {:?}", why.kind());
+        });
+    }
 
     #[test]
     fn vis_m_cas() {
@@ -130,5 +151,4 @@ mod test {
             println!("! {:?}", why.kind());
         });
     }
-
 }

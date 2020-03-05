@@ -2,8 +2,8 @@ use crate::process::*;
 use indexmap::IndexMap;
 use std::collections::VecDeque;
 use std::fmt;
-use std::fs;
 use std::hash::Hash;
+use std::fs;
 use std::io::{BufWriter, Write};
 
 #[derive(Default, std::fmt::Debug, Clone, PartialEq, Eq, Hash)]

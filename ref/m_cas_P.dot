@@ -1,0 +1,11 @@
+digraph {
+0 [label="P0"];
+1 [label="P1"];
+2 [label="P2"];
+3 [label="P3"];
+0 -> 1 [label="CAS"]
+1 -> 0 [label="retry"]
+1 -> 2 [label="begin"]
+2 -> 3 [label="end"]
+3 -> 0 [label="unlock"]
+}
