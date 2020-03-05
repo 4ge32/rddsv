@@ -44,14 +44,6 @@ impl<T: Clone + Hash + Eq> Trans<T> {
     }
 }
 
-pub struct Lts<T>(pub Vec<Trans<T>>);
-
-impl<T: Clone + Hash + Eq> Lts<T> {
-    pub fn new() -> Self {
-        Lts(vec![])
-    }
-}
-
 pub struct CompTrans {
     pub label: String,
     pub before: StateId,
@@ -68,14 +60,14 @@ impl CompTrans {
     }
 }
 
-pub struct CompLts<T> {
+pub struct Lts<T> {
     hat: IndexMap<State<T>, StateId>,
     trans: Vec<CompTrans>,
 }
 
-impl<T: std::fmt::Display + Clone + Eq + Hash> CompLts<T> {
-    pub fn new() -> CompLts<T> {
-        CompLts {
+impl<T: std::fmt::Display + Clone + Eq + Hash> Lts<T> {
+    pub fn new() -> Lts<T> {
+        Lts {
             hat: IndexMap::new(),
             trans: Vec::new(),
         }
@@ -107,8 +99,8 @@ impl<T: std::fmt::Display + Clone + Eq + Hash> CompLts<T> {
 pub fn concurrent_composition<T: std::fmt::Display + Clone + Copy + Eq + Hash>(
     process: Vec<Process<T>>,
     s0: State<T>,
-) -> CompLts<T> {
-    let mut lts = CompLts::new();
+) -> Lts<T> {
+    let mut lts = Lts::new();
     let mut que: VecDeque<Trans<T>> = VecDeque::new();
 
     let trans0 = Trans::new(&s0, None);
