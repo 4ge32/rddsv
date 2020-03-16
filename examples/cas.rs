@@ -1,5 +1,27 @@
 use rddsv::lts::*;
 use rddsv::process::*;
+use std::fmt;
+
+#[derive(Default, std::fmt::Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct SharedVars {
+    pub x: i32,  // shared variables between P and Q.
+    pub t1: i32, // P's local variables.
+    pub t2: i32, // Q's local variables.
+}
+
+impl fmt::Display for SharedVars {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "x={} t1={} t2={}", self.x, self.t1, self.t2)
+    }
+}
+
+#[allow(dead_code)]
+pub fn guard_true(_p: SharedVars) -> bool {
+    true
+}
+
+#[allow(dead_code)]
+pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {}
 
 /* User definition of guard and action */
 fn action_p_cas(p: &mut SharedVars, q: &SharedVars) {

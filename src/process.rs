@@ -1,14 +1,6 @@
-use std::fmt;
 use std::fs;
+use std::fmt;
 use std::io::{BufWriter, Write};
-
-#[allow(dead_code)]
-pub fn guard_true(_p: SharedVars) -> bool {
-    true
-}
-
-#[allow(dead_code)]
-pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Location(usize);
@@ -40,19 +32,6 @@ impl Label {
 impl fmt::Display for Label {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.0)
-    }
-}
-
-#[derive(Default, std::fmt::Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct SharedVars {
-    pub x: i32,  // shared variables between P and Q.
-    pub t1: i32, // P's local variables.
-    pub t2: i32, // Q's local variables.
-}
-
-impl fmt::Display for SharedVars {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "x={} t1={} t2={}", self.x, self.t1, self.t2)
     }
 }
 
