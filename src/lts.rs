@@ -2,14 +2,15 @@ use crate::process::*;
 use indexmap::IndexMap;
 use std::collections::VecDeque;
 use std::fmt;
-use std::hash::Hash;
 use std::fs;
+use std::hash::Hash;
 use std::io::{BufWriter, Write};
 
 #[derive(Default, std::fmt::Debug, Clone, PartialEq, Eq, Hash)]
 pub struct State<T> {
     pub shared_vars: T,
     pub locations: Vec<Location>,
+    pub deadlock: bool,
 }
 
 impl<T: std::fmt::Debug + Clone + Hash + Eq> State<T> {
@@ -17,6 +18,7 @@ impl<T: std::fmt::Debug + Clone + Hash + Eq> State<T> {
         State {
             shared_vars: r,
             locations: vec![Location::new(0), Location::new(0)],
+            deadlock: false,
         }
     }
 }
@@ -44,10 +46,12 @@ impl<T: Clone + Hash + Eq> Trans<T> {
     }
 }
 
+#[derive(Clone)]
 pub struct CompTrans {
     pub label: String,
     pub before: StateId,
     pub after: StateId,
+    pub on_deadlock: bool,
 }
 
 impl CompTrans {
@@ -56,12 +60,15 @@ impl CompTrans {
             label: label,
             before: b,
             after: a,
+            on_deadlock: false,
         }
     }
 }
 
+#[derive(Clone)]
 pub struct Lts<T> {
     hat: IndexMap<State<T>, StateId>,
+    dead: IndexMap<State<T>, StateId>,
     trans: Vec<CompTrans>,
 }
 
@@ -69,7 +76,86 @@ impl<T: std::fmt::Display + Clone + Eq + Hash> Lts<T> {
     pub fn new() -> Lts<T> {
         Lts {
             hat: IndexMap::new(),
+            dead: IndexMap::new(),
             trans: Vec::new(),
+        }
+    }
+
+    fn make_states(&self) -> Vec<StateId> {
+        let mut v = Vec::new();
+        for e in self.trans.iter() {
+            v.push(e.after);
+        }
+        v
+    }
+
+    pub fn detect_deadlock(&self) -> (bool, Vec<StateId>) {
+        let mut deadlock = true;
+        let v = self.make_states();
+        let ret: Vec<StateId> = v
+            .clone()
+            .into_iter()
+            .filter(|x| {
+                for e in self.trans.iter() {
+                    if e.before == *x {
+                        return false;
+                    }
+                }
+                true
+            })
+            .collect();
+        if ret.len() == 0 {
+            deadlock = false;
+        }
+        (deadlock, ret)
+    }
+
+    pub fn mark_state(&mut self, deadlock: Vec<StateId>) {
+        let can = self
+            .hat
+            .clone()
+            .iter()
+            .filter(|v| {
+                for e in &deadlock {
+                    if *e == *v.1 {
+                        return true;
+                    }
+                }
+                false
+            })
+            .map(|(k, v)| {
+                let mut kc = k.clone();
+                kc.deadlock = true;
+                (kc, *v)
+            })
+            .collect();
+        self.dead = can;
+    }
+
+    pub fn mark_path(&mut self, deadlock: Vec<StateId>) {
+        let mut can: Vec<usize> = Vec::new();
+        for (i, t) in self.trans.iter().enumerate() {
+            for d in deadlock.iter() {
+                if t.after == *d {
+                    can.push(i);
+                }
+            }
+        }
+
+        let mut deadlock = Vec::new();
+        let mut suc = true;
+        for c in can {
+            let mut e = self.trans.swap_remove(c);
+            e.on_deadlock = true;
+            deadlock.push(e.before);
+            self.trans.insert(c, e);
+            if c == 0 {
+                suc = false;
+            }
+        }
+
+        if suc == true {
+            self.mark_path(deadlock);
         }
     }
 
@@ -86,11 +172,26 @@ impl<T: std::fmt::Display + Clone + Eq + Hash> Lts<T> {
             if *h.1 == 0 {
                 writeln!(f, "color=cyan, style=filled];").unwrap();
             } else {
-                writeln!(f, "];").unwrap();
+                let mut deadlock = false;
+                for d in self.dead.clone().iter() {
+                    if d.1 == h.1 {
+                        deadlock = true;
+                        writeln!(f, "color=pink, style=filled];").unwrap();
+                        break;
+                    }
+                }
+                if deadlock == false {
+                    writeln!(f, "];").unwrap();
+                }
             }
         }
         for v in self.trans.iter() {
-            writeln!(f, "{} -> {} [label=\"{}\"];", v.before, v.after, v.label).unwrap();
+            write!(f, "{} -> {} [label=\"{}\"", v.before, v.after, v.label).unwrap();
+            if v.on_deadlock {
+                writeln!(f, "color=red,fontcolor=red,weight=2,penwidth=2];").unwrap();
+            } else {
+                writeln!(f, "];").unwrap();
+            }
         }
         writeln!(f, "}}").unwrap();
     }
@@ -108,6 +209,11 @@ pub fn concurrent_composition<T: std::fmt::Display + Clone + Copy + Eq + Hash>(
     lts.hat.insert(s0, 0);
 
     loop {
+        //println!("loop: {}", lop);
+        //lop += 1;
+        //if lop == 35 {
+        //    break;
+        //}
         if let Some(trans) = que.pop_front() {
             let s = trans.state;
             /* for each process */
@@ -118,14 +224,20 @@ pub fn concurrent_composition<T: std::fmt::Display + Clone + Copy + Eq + Hash>(
                     if (p.guard)(s.shared_vars) {
                         let mut t = s.clone();
                         t.locations[i] = p.dst;
+                        //println!("t->loc {}", p.dst);
                         (p.action)(&mut t.shared_vars, &s.shared_vars);
                         let before_id = *lts.hat.get(&s).unwrap();
                         let mut after_id = lts.hat.len();
+                        //println!(
+                        //    "{}.{}: {} -> {}",
+                        //    process[i].label, p.label, s.shared_vars, t.shared_vars
+                        //);
                         match lts.hat.get(&t) {
                             None => {
                                 let trans = Trans::new(&t, Some((process[i].label.clone(), p.dst)));
                                 lts.hat.insert(t.clone(), after_id);
                                 que.push_back(trans);
+                                //println!("ADD!");
                             }
                             Some(exist) => {
                                 after_id = *exist;
@@ -139,6 +251,11 @@ pub fn concurrent_composition<T: std::fmt::Display + Clone + Copy + Eq + Hash>(
         } else {
             break;
         }
+    }
+    let on_deadlock = lts.detect_deadlock();
+    if on_deadlock.0 {
+        lts.mark_path(on_deadlock.1.clone());
+        lts.mark_state(on_deadlock.1);
     }
     lts
 }
