@@ -14,14 +14,6 @@ impl fmt::Display for SharedVars {
     }
 }
 
-#[allow(dead_code)]
-pub fn guard_true(_p: SharedVars) -> bool {
-    true
-}
-
-#[allow(dead_code)]
-pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {}
-
 /* User definition of guard and action
  * a = after, b = before, c = current
  */
@@ -96,7 +88,7 @@ fn processes_def() -> Vec<Process<SharedVars>> {
 pub fn main() {
     /* visualize each process */
     let process = processes_def();
-    process[0].visualize("res/m_lock.dot");
+    process[0].visualize("res/m_lock_P.dot");
 
     let r: SharedVars = Default::default();
     let s = State::new(r);
@@ -112,45 +104,45 @@ mod test {
 
     #[test]
     fn vis_process() {
-        let process = m_cas_def();
-        process[0].visualize("res/test_m_cas_P.dot");
+        let process = processes_def();
+        process[0].visualize("res/test_m_lock_P.dot");
 
-        let mut file1 = match File::open("./res/test_m_cas_P.dot") {
+        let mut file1 = match File::open("./res/test_m_lock_P.dot") {
             Ok(f) => f,
             Err(e) => panic!("{}", e),
         };
-        let mut file2 = match File::open("./ref/m_cas_P.dot") {
+        let mut file2 = match File::open("./ref/m_lock_P.dot") {
             Ok(f) => f,
             Err(e) => panic!("{}", e),
         };
 
         assert!(diff_files(&mut file1, &mut file2), "They are different.");
 
-        std::fs::remove_file("res/test_m_cas_P.dot").unwrap_or_else(|why| {
+        std::fs::remove_file("res/test_m_lock_P.dot").unwrap_or_else(|why| {
             println!("! {:?}", why.kind());
         });
     }
 
     #[test]
     fn vis_m_cas() {
-        let process = m_cas_def();
+        let process = processes_def();
         let r: SharedVars = Default::default();
         let s = State::new(r);
         let lts = concurrent_composition(process, s);
-        lts.visualize("res/test_m_cas.dot");
+        lts.visualize("res/test_m_lock.dot");
 
-        let mut file1 = match File::open("./res/test_m_cas.dot") {
+        let mut file1 = match File::open("./res/test_m_lock.dot") {
             Ok(f) => f,
             Err(e) => panic!("{}", e),
         };
-        let mut file2 = match File::open("./ref/m_cas.dot") {
+        let mut file2 = match File::open("./ref/m_lock.dot") {
             Ok(f) => f,
             Err(e) => panic!("{}", e),
         };
 
         assert!(diff_files(&mut file1, &mut file2), "They are different.");
 
-        std::fs::remove_file("res/test_m_cas.dot").unwrap_or_else(|why| {
+        std::fs::remove_file("res/test_m_lock.dot").unwrap_or_else(|why| {
             println!("! {:?}", why.kind());
         });
     }

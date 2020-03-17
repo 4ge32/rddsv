@@ -1,0 +1,9 @@
+digraph {
+0 [label="P0"];
+1 [label="P1"];
+2 [label="P2"];
+3 [label="P3"];
+0 -> 1 [label="read"]
+1 -> 2 [label="inc"]
+2 -> 3 [label="write"]
+}

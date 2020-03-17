@@ -15,14 +15,6 @@ impl fmt::Display for SharedVars {
     }
 }
 
-#[allow(dead_code)]
-pub fn guard_true(_p: SharedVars) -> bool {
-    true
-}
-
-#[allow(dead_code)]
-pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {}
-
 /* User definition of guard and action */
 fn action_p_cas(p: &mut SharedVars, q: &SharedVars) {
     p.x = 1;
@@ -151,7 +143,7 @@ mod test {
     }
 
     #[test]
-    fn vis_m_cas() {
+    fn vis_lts() {
         let process = m_cas_def();
         let r: SharedVars = Default::default();
         let s = State::new(r);

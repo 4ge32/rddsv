@@ -2,6 +2,14 @@ use std::fs;
 use std::fmt;
 use std::io::{BufWriter, Write};
 
+#[allow(dead_code)]
+pub fn guard_true<T: Clone + Eq>(_p: T) -> bool {
+    true
+}
+
+#[allow(dead_code)]
+pub fn action_nop<T: Clone + Eq>(_q: &mut T, _p: &T) {}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Location(usize);
 

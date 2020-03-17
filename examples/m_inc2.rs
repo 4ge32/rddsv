@@ -15,15 +15,6 @@ impl fmt::Display for SharedVars {
     }
 }
 
-#[allow(dead_code)]
-pub fn guard_true(_p: SharedVars) -> bool {
-    true
-}
-
-#[allow(dead_code)]
-pub fn action_nop(_q: &mut SharedVars, _p: &SharedVars) {}
-
-
 /* User definition of guard and action */
 fn action_p_read(a: &mut SharedVars, b: &SharedVars) {
     a.t1 = b.x;
@@ -110,47 +101,48 @@ mod test {
     use file_diff::diff_files;
     use std::fs::*;
 
-    //#[test]
-    //fn vis_p_process() {
-    //    let p = m_inc2_p_def();
-    //    vis_process("P_inc2", &p);
-
-    //    let mut file1 = match File::open("./P_inc2.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
-    //    let mut file2 = match File::open("./tests/m_inc2_P.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
-
-    //    assert!(diff_files(&mut file1, &mut file2), "Not much P dot diff");
-
-    //    std::fs::remove_file("P_inc2.dot").unwrap_or_else(|why| {
-    //        println!("! {:?}", why.kind());
-    //    });
-    //}
-    //#[test]
-    //fn vis_q_process() {
-    //    let p = m_inc2_q_def();
-    //    vis_process("Q_inc2", &p);
-
-    //    let mut file1 = match File::open("./Q_inc2.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
-    //    let mut file2 = match File::open("./tests/m_inc2_Q.dot") {
-    //        Ok(f) => f,
-    //        Err(e) => panic!("{}", e),
-    //    };
-
-    //    assert!(diff_files(&mut file1, &mut file2), "Not much Q dot diff");
-
-    //    std::fs::remove_file("Q_inc2.dot").unwrap_or_else(|why| {
-    //        println!("! {:?}", why.kind());
-    //    });
-    //}
     #[test]
-    fn process_create() {
+    fn vis_process() {
+        let process = m_inc2_def();
+        process[0].visualize("res/test_m_inc2_P.dot");
+
+        let mut file1 = match File::open("./res/test_m_inc2_P.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
+        let mut file2 = match File::open("./ref/m_inc2_P.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
+
+        assert!(diff_files(&mut file1, &mut file2), "Not much P dot diff");
+
+        std::fs::remove_file("res/test_m_inc2_P.dot").unwrap_or_else(|why| {
+            println!("! {:?}", why.kind());
+        });
+    }
+
+    #[test]
+    fn vis_lts() {
+        let process = m_inc2_def();
+        let r: SharedVars = Default::default();
+        let s = State::new(r);
+        let lts = concurrent_composition(process, s);
+        lts.visualize("res/test_m_inc2.dot");
+
+        let mut file1 = match File::open("./res/test_m_inc2.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
+        let mut file2 = match File::open("./ref/m_inc2.dot") {
+            Ok(f) => f,
+            Err(e) => panic!("{}", e),
+        };
+
+        assert!(diff_files(&mut file1, &mut file2), "Not much Q dot diff");
+
+        std::fs::remove_file("res/test_m_inc2.dot").unwrap_or_else(|why| {
+            println!("! {:?}", why.kind());
+        });
     }
 }
