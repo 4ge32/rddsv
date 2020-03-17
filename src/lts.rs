@@ -138,6 +138,7 @@ impl<T: std::fmt::Display + Clone + Eq + Hash> Lts<T> {
             for d in deadlock.iter() {
                 if t.after == *d {
                     can.push(i);
+                    break;
                 }
             }
         }
@@ -145,7 +146,7 @@ impl<T: std::fmt::Display + Clone + Eq + Hash> Lts<T> {
         let mut deadlock = Vec::new();
         let mut suc = true;
         for c in can {
-            let mut e = self.trans.swap_remove(c);
+            let mut e = self.trans.remove(c);
             e.on_deadlock = true;
             deadlock.push(e.before);
             self.trans.insert(c, e);
