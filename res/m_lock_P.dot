@@ -1,0 +1,10 @@
+digraph {
+0 [label="P0"];
+1 [label="P1"];
+2 [label="P2"];
+3 [label="P3"];
+0 -> 1 [label="lock0"]
+1 -> 2 [label="lock1"]
+2 -> 3 [label="unlock1"]
+3 -> 0 [label="unlock0"]
+}

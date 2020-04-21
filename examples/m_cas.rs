@@ -16,45 +16,45 @@ impl fmt::Display for SharedVars {
 }
 
 /* User definition of guard and action */
-fn action_p_cas(p: &mut SharedVars, q: &SharedVars) {
+fn action_p_cas(_prop: Prop, p: &mut SharedVars, q: &SharedVars) {
     p.x = 1;
     p.t1 = q.x;
 }
 
-fn guard_p_retry(p: SharedVars) -> bool {
+fn guard_p_retry(_prop: Prop, p: SharedVars) -> bool {
     p.t1 == 1
 }
 
-fn action_p_retry(p: &mut SharedVars, _q: &SharedVars) {
+fn action_p_retry(_prop: Prop, p: &mut SharedVars, _q: &SharedVars) {
     p.t1 = 0;
 }
 
-fn guard_p_begin(p: SharedVars) -> bool {
+fn guard_p_begin(_prop: Prop, p: SharedVars) -> bool {
     p.t1 == 0
 }
 
-fn action_p_unlock(p: &mut SharedVars, _q: &SharedVars) {
+fn action_p_unlock(_prop: Prop, p: &mut SharedVars, _q: &SharedVars) {
     p.x = 0;
 }
 
-fn action_q_cas(q: &mut SharedVars, p: &SharedVars) {
+fn action_q_cas(_prop: Prop, q: &mut SharedVars, p: &SharedVars) {
     q.x = 1;
     q.t2 = p.x;
 }
 
-fn guard_q_retry(q: SharedVars) -> bool {
+fn guard_q_retry(_prop: Prop, q: SharedVars) -> bool {
     q.t2 == 1
 }
 
-fn action_q_retry(q: &mut SharedVars, _p: &SharedVars) {
+fn action_q_retry(_prop: Prop, q: &mut SharedVars, _p: &SharedVars) {
     q.t2 = 0;
 }
 
-fn guard_q_begin(q: SharedVars) -> bool {
+fn guard_q_begin(_prop: Prop, q: SharedVars) -> bool {
     q.t2 == 0
 }
 
-fn action_q_unlock(q: &mut SharedVars, _p: &SharedVars) {
+fn action_q_unlock(_prop: Prop, q: &mut SharedVars, _p: &SharedVars) {
     q.x = 0;
 }
 

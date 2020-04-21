@@ -160,6 +160,19 @@ impl<T: std::fmt::Display + Clone + Eq + Hash> Lts<T> {
         }
     }
 
+    /* get a lts as adjacency-list representation */
+    pub fn get_ali(&self) -> Vec<Vec<StateId>> {
+        let mut ret: Vec<Vec<StateId>> = vec![vec![]];
+        for e in &self.trans {
+            ret[e.before].push(e.after);
+        }
+
+        for _e in &ret {
+            //println!("{}", );
+        }
+        ret
+    }
+
     pub fn visualize(&self, path: &str) {
         let mut f = BufWriter::new(fs::File::create(path).unwrap());
         writeln!(f, "digraph {{").unwrap();
@@ -210,11 +223,6 @@ pub fn concurrent_composition<T: std::fmt::Display + Clone + Copy + Eq + Hash>(
     lts.hat.insert(s0, 0);
 
     loop {
-        //println!("loop: {}", lop);
-        //lop += 1;
-        //if lop == 35 {
-        //    break;
-        //}
         if let Some(trans) = que.pop_front() {
             let s = trans.state;
             /* for each process */
@@ -222,23 +230,17 @@ pub fn concurrent_composition<T: std::fmt::Display + Clone + Copy + Eq + Hash>(
                 let loc = s.locations[i].clone();
                 let pp = &process[i].v[loc.to_usize()];
                 for p in &pp.transs {
-                    if (p.guard)(s.shared_vars) {
+                    if (p.guard)(process[i].prop, s.shared_vars) {
                         let mut t = s.clone();
                         t.locations[i] = p.dst;
-                        //println!("t->loc {}", p.dst);
-                        (p.action)(&mut t.shared_vars, &s.shared_vars);
+                        (p.action)(process[i].prop, &mut t.shared_vars, &s.shared_vars);
                         let before_id = *lts.hat.get(&s).unwrap();
                         let mut after_id = lts.hat.len();
-                        //println!(
-                        //    "{}.{}: {} -> {}",
-                        //    process[i].label, p.label, s.shared_vars, t.shared_vars
-                        //);
                         match lts.hat.get(&t) {
                             None => {
                                 let trans = Trans::new(&t, Some((process[i].label.clone(), p.dst)));
                                 lts.hat.insert(t.clone(), after_id);
                                 que.push_back(trans);
-                                //println!("ADD!");
                             }
                             Some(exist) => {
                                 after_id = *exist;
@@ -258,5 +260,6 @@ pub fn concurrent_composition<T: std::fmt::Display + Clone + Copy + Eq + Hash>(
         lts.mark_path(on_deadlock.1.clone());
         lts.mark_state(on_deadlock.1);
     }
+    //lts.get_ali();
     lts
 }

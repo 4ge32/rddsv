@@ -16,15 +16,15 @@ impl fmt::Display for SharedVars {
 }
 
 /* User definition of guard and action */
-fn action_p_read(a: &mut SharedVars, b: &SharedVars) {
+fn action_p_read(_prop: Prop, a: &mut SharedVars, b: &SharedVars) {
     a.t1 = b.x;
 }
 
-fn action_p_inc(a: &mut SharedVars, b: &SharedVars) {
+fn action_p_inc(_prop: Prop, a: &mut SharedVars, b: &SharedVars) {
     a.t1 = b.t1 + 1;
 }
 
-fn action_p_write(a: &mut SharedVars, b: &SharedVars) {
+fn action_p_write(_prop: Prop, a: &mut SharedVars, b: &SharedVars) {
     a.x = b.t1;
 }
 
@@ -46,15 +46,15 @@ fn m_inc2_p_def() -> Process<SharedVars> {
     return p;
 }
 
-fn action_q_read(a: &mut SharedVars, b: &SharedVars) {
+fn action_q_read(_prop: Prop, a: &mut SharedVars, b: &SharedVars) {
     a.t2 = b.x;
 }
 
-fn action_q_inc(a: &mut SharedVars, b: &SharedVars) {
+fn action_q_inc(_prop: Prop, a: &mut SharedVars, b: &SharedVars) {
     a.t2 = b.t2 + 1;
 }
 
-fn action_q_write(a: &mut SharedVars, b: &SharedVars) {
+fn action_q_write(_prop: Prop, a: &mut SharedVars, b: &SharedVars) {
     a.x = b.t2;
 }
 

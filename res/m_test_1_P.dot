@@ -1,0 +1,11 @@
+digraph {
+0 [label="P0"];
+1 [label="P1"];
+2 [label="P2"];
+3 [label="P3"];
+4 [label="P4"];
+0 -> 1 [label="x=1"]
+1 -> 2 [label="y=1"]
+2 -> 3 [label="z=1"]
+3 -> 4 [label="y=0"]
+}

@@ -1,0 +1,9 @@
+digraph {
+0 [label="Q0"];
+1 [label="Q1"];
+2 [label="Q2"];
+3 [label="Q3"];
+0 -> 1 [label="read"]
+1 -> 2 [label="inc"]
+2 -> 3 [label="write"]
+}

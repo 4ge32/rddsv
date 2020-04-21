@@ -17,27 +17,27 @@ impl fmt::Display for SharedVars {
 /* User definition of guard and action
  * a = after, b = before, c = current
  */
-fn guard_lock0(c: SharedVars) -> bool {
+fn guard_lock0(_prop: Prop, c: SharedVars) -> bool {
     c.m0 == 0
 }
 
-fn guard_lock1(c: SharedVars) -> bool {
+fn guard_lock1(_prop: Prop, c: SharedVars) -> bool {
     c.m1 == 0
 }
 
-fn action_lock0(a: &mut SharedVars, _b: &SharedVars) {
+fn action_lock0(_prop: Prop, a: &mut SharedVars, _b: &SharedVars) {
     a.m0 = 1
 }
 
-fn action_lock1(a: &mut SharedVars, _b: &SharedVars) {
+fn action_lock1(_prop: Prop, a: &mut SharedVars, _b: &SharedVars) {
     a.m1 = 1
 }
 
-fn action_unlock0(a: &mut SharedVars, _b: &SharedVars) {
+fn action_unlock0(_prop: Prop, a: &mut SharedVars, _b: &SharedVars) {
     a.m0 = 0
 }
 
-fn action_unlock1(a: &mut SharedVars, _b: &SharedVars) {
+fn action_unlock1(_prop: Prop, a: &mut SharedVars, _b: &SharedVars) {
     a.m1 = 0
 }
 

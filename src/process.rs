@@ -2,13 +2,17 @@ use std::fs;
 use std::fmt;
 use std::io::{BufWriter, Write};
 
+pub type Prop = i32;
+pub type Guard<T> = fn(Prop, T) -> bool;
+pub type Action<T> = fn(Prop, &mut T, &T);
+
 #[allow(dead_code)]
-pub fn guard_true<T: Clone + Eq>(_p: T) -> bool {
+pub fn guard_true<T: Clone + Eq>(_prop: Prop, _p: T) -> bool {
     true
 }
 
 #[allow(dead_code)]
-pub fn action_nop<T: Clone + Eq>(_q: &mut T, _p: &T) {}
+pub fn action_nop<T: Clone + Eq>(_prop: Prop, _q: &mut T, _p: &T) {}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Location(usize);
@@ -42,10 +46,6 @@ impl fmt::Display for Label {
         write!(fmt, "{}", self.0)
     }
 }
-
-pub type Prop = i32;
-pub type Guard<T> = fn(T) -> bool;
-pub type Action<T> = fn(&mut T, &T);
 
 #[derive(Clone)]
 pub struct ProcessTrans<T> {
@@ -85,6 +85,7 @@ impl<T: Clone + Eq> ExecUnit<T> {
 pub struct Process<T> {
     pub label: Label,
     pub v: Vec<ExecUnit<T>>,
+    pub prop: Prop,
 }
 
 impl<T: Clone> Process<T> {
@@ -92,6 +93,7 @@ impl<T: Clone> Process<T> {
         Process {
             label: Label::new(label),
             v: v,
+            prop: 0,
         }
     }
 

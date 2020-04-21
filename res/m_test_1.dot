@@ -1,0 +1,11 @@
+digraph {
+0 [label="0\nP0 Q0 \nx=0 y=0 z=0"color=cyan, style=filled];
+1 [label="1\nP1 Q0 \nx=1 y=0 z=0"];
+2 [label="2\nP2 Q0 \nx=1 y=1 z=0"];
+3 [label="3\nP3 Q0 \nx=1 y=1 z=1"];
+4 [label="4\nP4 Q0 \nx=1 y=0 z=1"color=pink, style=filled];
+0 -> 1 [label="P.x=1"color=red,fontcolor=red,weight=2,penwidth=2];
+1 -> 2 [label="P.y=1"color=red,fontcolor=red,weight=2,penwidth=2];
+2 -> 3 [label="P.z=1"color=red,fontcolor=red,weight=2,penwidth=2];
+3 -> 4 [label="P.y=0"color=red,fontcolor=red,weight=2,penwidth=2];
+}
